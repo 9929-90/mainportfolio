@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const projects = [
@@ -28,6 +28,28 @@ const projects = [
     id: 2,
     number: '02',
     status: 'live',
+    title: 'SQLPilot',
+    subtitle: 'AI SQL Query Generator',
+    summary: 'AI-powered platform that converts natural language into SQL queries with execution support',
+    description: 'Built and deployed a full-stack AI SQL query generation platform using Spring Boot 3.4.5 (Java 21), React 18 (Vite), PostgreSQL (Neon), and Redis. Deployed via Docker → GitHub → Render (backend) + Netlify (frontend).',
+    url: 'https://sqlpilott.netlify.app',
+    tech: ['Java 21', 'Spring Boot 3.4.5', 'React 18', 'Vite', 'PostgreSQL', 'Redis', 'Gemini AI', 'Docker', 'JWT'],
+    highlights: [
+      'JWT auth with BCrypt & role-based access (USER / ADMIN)',
+      'Project & DB schema management with JSON upload',
+      'Visual table preview for uploaded schemas',
+      'Natural language → Gemini AI → SQL with explanation',
+      'Auto LIMIT 100 & blocks destructive queries',
+      'Execute SQL against connected DB with table results',
+      'Paginated query history with expandable SQL view',
+      'Admin dashboard with area/bar/pie charts & user management'
+    ],
+    tag: 'AI Full-Stack'
+  },
+  {
+    id: 3,
+    number: '03',
+    status: 'live',
     title: 'Cynera Security',
     subtitle: 'Enterprise Cybersecurity Website',
     summary: 'Modern corporate website for a cybersecurity service provider',
@@ -45,8 +67,8 @@ const projects = [
     tag: 'Frontend'
   },
   {
-    id: 3,
-    number: '03',
+    id: 4,
+    number: '04',
     status: 'live',
     title: "Rohit's Foundation",
     subtitle: 'Blog Publishing Platform',
@@ -65,57 +87,42 @@ const projects = [
     tag: 'Full-Stack'
   },
   {
-    id: 4,
-    number: '04',
-    status: 'wip',
-    title: 'Employee Management System',
-    subtitle: 'HR & Workforce Management Tool',
-    summary: 'Full-stack employee management system',
-    description: 'A comprehensive employee management system built using the same robust stack — React, Spring Boot, Tailwind CSS, and Java. Currently in development, not yet deployed.',
-    url: null,
-    tech: ['React', 'Spring Boot', 'Java', 'Tailwind CSS', 'PostgreSQL'],
-    highlights: [
-      'Employee records & profiles',
-      'Department & role management',
-      'Attendance & leave tracking',
-      'Payroll management',
-      'Performance reviews',
-      'HR dashboard & reporting'
-    ],
-    tag: 'Full-Stack'
-  },
-  {
     id: 5,
     number: '05',
     status: 'wip',
-    title: 'VeriData',
-    subtitle: 'Ethical AI SaaS Platform',
-    summary: 'AI-powered data verification and ethics platform',
-    description: 'An ethical AI SaaS platform focused on data integrity and responsible AI practices. Currently in active development — pushing boundaries of what responsible AI can look like.',
+    title: 'DeepVision AI',
+    subtitle: 'AI-Powered Surveillance Platform',
+    summary: 'Production-grade real-time computer vision platform for object detection, tracking, and intelligent alerting across multiple camera streams',
+    description: 'Built a production-grade real-time computer vision surveillance system using Python, FastAPI, YOLOv8, and PostgreSQL. Supports up to 16 concurrent RTSP/webcam streams with persistent object tracking, configurable alert zones, and a full REST API. Deployable via Docker with optional GPU acceleration (CUDA 12.1).',
     url: null,
-    tech: ['React', 'Spring Boot', 'AI/ML', 'SaaS', 'Java'],
+    tech: ['Python', 'FastAPI', 'YOLOv8', 'PostgreSQL', 'Redis', 'Docker', 'CUDA', 'Prometheus', 'Grafana', 'SQLAlchemy'],
     highlights: [
-      'Ethical AI data verification',
-      'SaaS subscription model',
-      'AI transparency & auditability',
-      'Data integrity workflows',
-      'Enterprise-grade security',
-      'Real-time AI monitoring'
+      'Up to 16 concurrent RTSP / webcam streams',
+      'YOLOv8 object detection — 80 classes',
+      'SORT tracking with Kalman filter + Hungarian algorithm',
+      'Intrusion zones, people counting & loitering detection',
+      'Email (SMTP) + Webhook alerts with retry & cooldown',
+      'FastAPI async REST API with OpenAPI docs',
+      'Server-Sent Events + MJPEG live debug streams',
+      'Redis pub/sub result caching & rate-limiting',
+      'Prometheus metrics + Grafana dashboards',
+      'Multi-stage Docker build with GPU support',
+      'Kubernetes-ready with liveness & readiness probes',
+      'Frame skip, batch inference & class filtering for perf tuning'
     ],
-    tag: 'AI SaaS'
+    tag: 'AI / CV'
   }
 ];
 
 const statusConfig = {
   live: { label: 'Live', color: '#4ade80', dot: true },
-  wip: { label: 'In Progress', color: '#fbbf24', dot: true }
+  wip: { label: 'Not Deployed', color: '#fbbf24', dot: true }
 };
 
 export default function Projects() {
   const [current, setCurrent] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const [direction, setDirection] = useState(0);
-  const dragRef = useRef(null);
 
   const go = (dir) => {
     setDirection(dir);
@@ -180,25 +187,75 @@ export default function Projects() {
 
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '900px' }}>
 
+        {/* Back button */}
+        <motion.a
+          href="/"
+          whileHover={{ x: -3 }}
+          whileTap={{ scale: 0.95 }}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+            marginBottom: '1.75rem',
+            padding: '0.5rem 1.1rem',
+            background: 'transparent',
+            border: '1px solid #2a2a2a',
+            borderRadius: '0.5rem',
+            color: '#ccc',
+            fontSize: '0.85rem',
+            fontFamily: 'monospace',
+            letterSpacing: '0.08em',
+            textDecoration: 'none',
+            cursor: 'pointer'
+          }}
+        >
+          ← Back to Home
+        </motion.a>
+
+        {/* Notice banner */}
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          style={{
+            marginBottom: '2rem',
+            padding: '0.9rem 1.25rem',
+            background: 'rgba(251, 191, 36, 0.06)',
+            border: '1px solid rgba(251, 191, 36, 0.25)',
+            borderRadius: '0.75rem',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '0.75rem'
+          }}
+        >
+          <span style={{ fontSize: '1rem', flexShrink: 0, marginTop: '1px' }}>⚠️</span>
+          <p style={{
+            margin: 0,
+            fontSize: '0.88rem',
+            color: '#d4a843',
+            fontFamily: "'Open Sans', sans-serif",
+            lineHeight: 1.6
+          }}>
+            <strong style={{ color: '#fbbf24' }}>Heads up!</strong> The backend servers for live projects are hosted on Render's free tier, which spins down after inactivity. They may take <strong style={{ color: '#fbbf24' }}>5 - 10 minutes to cold-start</strong> on first load — please be patient. Additionally, <strong style={{ color: '#fbbf24' }}>DeepVision AI</strong> is currently not deployed yet.
+          </p>
+        </motion.div>
+
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', padding: '0 0.5rem' }}>
           <div>
-            <div style={{ fontSize: '0.7rem', letterSpacing: '0.3em', color: '#555', textTransform: 'uppercase', fontFamily: 'monospace', marginBottom: '0.3rem' }}>
+            <div style={{ fontSize: '0.8rem', letterSpacing: '0.3em', color: '#aaa', textTransform: 'uppercase', fontFamily: 'monospace', marginBottom: '0.3rem' }}>
               Selected Work
             </div>
-            <div style={{ fontSize: '0.7rem', letterSpacing: '0.15em', color: '#333', fontFamily: 'monospace' }}>
+            <div style={{ fontSize: '0.8rem', letterSpacing: '0.15em', color: '#888', fontFamily: 'monospace' }}>
               {String(current + 1).padStart(2, '0')} / {String(projects.length).padStart(2, '0')}
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
             {projects.map((_, i) => (
               <motion.button
                 key={i}
                 onClick={() => { setDirection(i > current ? 1 : -1); setExpanded(false); setCurrent(i); }}
                 style={{
-                  width: i === current ? '2rem' : '0.5rem',
                   height: '2px',
-                  background: i === current ? '#fff' : '#333',
+                  background: i === current ? '#fff' : '#444',
                   border: 'none', cursor: 'pointer', padding: 0,
                   transition: 'all 0.4s ease'
                 }}
@@ -230,42 +287,38 @@ export default function Projects() {
               layout
               style={{
                 background: 'linear-gradient(135deg, #111 0%, #0d0d0d 100%)',
-                border: '1px solid #1e1e1e',
+                border: '1px solid #2a2a2a',
                 borderRadius: '1.5rem',
-                padding: expanded ? '2.5rem' : '2.5rem',
+                padding: '2.5rem',
                 cursor: expanded ? 'default' : 'pointer',
                 position: 'relative',
                 overflow: 'hidden',
                 transition: 'border-color 0.3s ease'
               }}
-              whileHover={!expanded ? { borderColor: '#2a2a2a' } : {}}
+              whileHover={!expanded ? { borderColor: '#3a3a3a' } : {}}
               onClick={() => !expanded && setExpanded(true)}
             >
               {/* Top row */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <span style={{
-                    fontFamily: 'monospace', fontSize: '0.65rem',
-                    color: '#333', letterSpacing: '0.1em'
-                  }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                  <span style={{ fontFamily: 'monospace', fontSize: '0.8rem', color: '#888', letterSpacing: '0.1em' }}>
                     {project.number}
                   </span>
                   <span style={{
                     display: 'flex', alignItems: 'center', gap: '0.4rem',
-                    fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase',
+                    fontSize: '0.75rem', letterSpacing: '0.15em', textTransform: 'uppercase',
                     fontFamily: 'monospace', color: status.color
                   }}>
                     <span style={{
-                      width: '5px', height: '5px', borderRadius: '50%',
-                      background: status.color,
-                      boxShadow: `0 0 6px ${status.color}`
+                      width: '6px', height: '6px', borderRadius: '50%',
+                      background: status.color, boxShadow: `0 0 6px ${status.color}`
                     }} />
                     {status.label}
                   </span>
                   <span style={{
-                    fontSize: '0.6rem', letterSpacing: '0.2em', textTransform: 'uppercase',
-                    fontFamily: 'monospace', color: '#444',
-                    border: '1px solid #222', borderRadius: '3px', padding: '2px 8px'
+                    fontSize: '0.7rem', letterSpacing: '0.2em', textTransform: 'uppercase',
+                    fontFamily: 'monospace', color: '#aaa',
+                    border: '1px solid #444', borderRadius: '3px', padding: '3px 10px'
                   }}>
                     {project.tag}
                   </span>
@@ -281,12 +334,12 @@ export default function Projects() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       style={{
-                        padding: '0.4rem 1rem',
+                        padding: '0.45rem 1.1rem',
                         background: 'transparent',
-                        border: '1px solid #2a2a2a',
+                        border: '1px solid #444',
                         borderRadius: '2rem',
-                        color: '#888',
-                        fontSize: '0.7rem',
+                        color: '#ccc',
+                        fontSize: '0.8rem',
                         fontFamily: 'monospace',
                         letterSpacing: '0.1em',
                         textDecoration: 'none',
@@ -302,9 +355,9 @@ export default function Projects() {
                       animate={{ opacity: 1, scale: 1 }}
                       onClick={(e) => { e.stopPropagation(); setExpanded(false); }}
                       style={{
-                        width: '2rem', height: '2rem',
-                        background: '#1a1a1a', border: '1px solid #2a2a2a',
-                        borderRadius: '50%', color: '#666', fontSize: '1rem',
+                        width: '2.2rem', height: '2.2rem',
+                        background: '#1a1a1a', border: '1px solid #444',
+                        borderRadius: '50%', color: '#ccc', fontSize: '1.1rem',
                         cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
                       }}
                     >
@@ -317,9 +370,9 @@ export default function Projects() {
               {/* Title */}
               <div style={{ marginBottom: '1.25rem' }}>
                 <h2 style={{
-                  fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+                  fontSize: 'clamp(2.2rem, 5vw, 3.8rem)',
                   fontWeight: 300,
-                  color: '#fff',
+                  color: '#ffffff',
                   margin: 0,
                   lineHeight: 1.1,
                   letterSpacing: '-0.02em',
@@ -328,7 +381,7 @@ export default function Projects() {
                   {project.title}
                 </h2>
                 <p style={{
-                  fontSize: '0.85rem', color: '#555', marginTop: '0.4rem',
+                  fontSize: '1rem', color: '#aaa', marginTop: '0.5rem',
                   fontFamily: 'monospace', letterSpacing: '0.05em'
                 }}>
                   {project.subtitle}
@@ -337,7 +390,7 @@ export default function Projects() {
 
               {/* Summary */}
               <p style={{
-                fontSize: '1rem', color: '#888', lineHeight: 1.6,
+                fontSize: '1.05rem', color: '#ccc', lineHeight: 1.7,
                 fontFamily: "'Open Sans', sans-serif", marginBottom: expanded ? '2rem' : 0
               }}>
                 {project.summary}
@@ -352,12 +405,11 @@ export default function Projects() {
                     exit={{ opacity: 0, y: 8 }}
                     transition={{ duration: 0.35 }}
                   >
-                    {/* Divider */}
-                    <div style={{ height: '1px', background: '#1e1e1e', marginBottom: '2rem' }} />
+                    <div style={{ height: '1px', background: '#2a2a2a', marginBottom: '2rem' }} />
 
                     <p style={{
-                      fontSize: '0.9rem', color: '#666', lineHeight: 1.7,
-                      fontFamily: "'DM Sans', sans-serif", marginBottom: '2rem'
+                      fontSize: '1rem', color: '#ccc', lineHeight: 1.8,
+                      fontFamily: "'Open Sans', sans-serif", marginBottom: '2rem'
                     }}>
                       {project.description}
                     </p>
@@ -365,7 +417,7 @@ export default function Projects() {
                     {/* Tech */}
                     <div style={{ marginBottom: '2rem' }}>
                       <div style={{
-                        fontSize: '0.6rem', letterSpacing: '0.3em', color: '#444',
+                        fontSize: '0.7rem', letterSpacing: '0.3em', color: '#999',
                         textTransform: 'uppercase', fontFamily: 'monospace', marginBottom: '0.75rem'
                       }}>
                         Stack
@@ -373,12 +425,12 @@ export default function Projects() {
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                         {project.tech.map((t, i) => (
                           <span key={i} style={{
-                            padding: '0.3rem 0.8rem',
-                            border: '1px solid #1e1e1e',
+                            padding: '0.35rem 0.9rem',
+                            border: '1px solid #333',
                             borderRadius: '0.25rem',
-                            fontSize: '0.72rem',
+                            fontSize: '0.8rem',
                             fontFamily: 'monospace',
-                            color: '#666',
+                            color: '#ddd',
                             letterSpacing: '0.05em'
                           }}>
                             {t}
@@ -390,7 +442,7 @@ export default function Projects() {
                     {/* Highlights */}
                     <div>
                       <div style={{
-                        fontSize: '0.6rem', letterSpacing: '0.3em', color: '#444',
+                        fontSize: '0.7rem', letterSpacing: '0.3em', color: '#999',
                         textTransform: 'uppercase', fontFamily: 'monospace', marginBottom: '0.75rem'
                       }}>
                         Highlights
@@ -398,12 +450,12 @@ export default function Projects() {
                       <div style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-                        gap: '0.5rem'
+                        gap: '0.6rem'
                       }}>
                         {project.highlights.map((h, i) => (
                           <div key={i} style={{
                             display: 'flex', alignItems: 'flex-start', gap: '0.6rem',
-                            fontSize: '0.82rem', color: '#666',
+                            fontSize: '0.92rem', color: '#ccc',
                             fontFamily: "'Open Sans', sans-serif", lineHeight: 1.5
                           }}>
                             <span style={{ color: '#4ade80', marginTop: '2px', flexShrink: 0 }}>→</span>
@@ -423,7 +475,7 @@ export default function Projects() {
                   animate={{ opacity: 1 }}
                   style={{
                     position: 'absolute', bottom: '1.5rem', right: '1.5rem',
-                    fontSize: '0.65rem', color: '#333', fontFamily: 'monospace',
+                    fontSize: '0.75rem', color: '#888', fontFamily: 'monospace',
                     letterSpacing: '0.1em'
                   }}
                 >
@@ -444,9 +496,9 @@ export default function Projects() {
             whileTap={{ scale: 0.95 }}
             onClick={() => go(-1)}
             style={{
-              background: 'transparent', border: '1px solid #1e1e1e',
-              borderRadius: '0.5rem', color: '#555', padding: '0.6rem 1.25rem',
-              fontFamily: 'monospace', fontSize: '0.75rem', letterSpacing: '0.1em',
+              background: 'transparent', border: '1px solid #333',
+              borderRadius: '0.5rem', color: '#ccc', padding: '0.65rem 1.4rem',
+              fontFamily: 'monospace', fontSize: '0.85rem', letterSpacing: '0.1em',
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem'
             }}
           >
@@ -454,8 +506,8 @@ export default function Projects() {
           </motion.button>
 
           <span style={{
-            fontFamily: 'monospace', fontSize: '0.65rem',
-            color: '#333', letterSpacing: '0.1em'
+            fontFamily: 'monospace', fontSize: '0.8rem',
+            color: '#aaa', letterSpacing: '0.1em'
           }}>
             {project.title}
           </span>
@@ -465,9 +517,9 @@ export default function Projects() {
             whileTap={{ scale: 0.95 }}
             onClick={() => go(1)}
             style={{
-              background: 'transparent', border: '1px solid #1e1e1e',
-              borderRadius: '0.5rem', color: '#555', padding: '0.6rem 1.25rem',
-              fontFamily: 'monospace', fontSize: '0.75rem', letterSpacing: '0.1em',
+              background: 'transparent', border: '1px solid #333',
+              borderRadius: '0.5rem', color: '#ccc', padding: '0.65rem 1.4rem',
+              fontFamily: 'monospace', fontSize: '0.85rem', letterSpacing: '0.1em',
               cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem'
             }}
           >
