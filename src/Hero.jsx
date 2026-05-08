@@ -366,7 +366,7 @@ const TiltCard = ({ children, maxTilt = 10 }) => {
 };
 
 // ===== HERO =====
-const Hero = ({ profileImage = '/profile.png' }) => {
+const Hero = ({ profileImage = '/Profile.png' }) => {
   const reducedMotion = useReducedMotion();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const imageRef = useRef(null);
@@ -437,7 +437,6 @@ const Hero = ({ profileImage = '/profile.png' }) => {
           />
         </motion.button>
 
-        <LetsTalkButton />
       </motion.nav>
 
       {/* ── MOBILE FULLSCREEN MENU ───────────────────────── */}
@@ -494,9 +493,10 @@ const Hero = ({ profileImage = '/profile.png' }) => {
               style={{ fontFamily: "'Open Sans', sans-serif", fontWeight: 300, fontSize: 'clamp(1.75rem, 4vw, 3rem)', letterSpacing: '-0.01em' }}
               variants={baseVariants}
             >
+              <TextReveal text="AI Integrated" delay={0.4} className="block mt-1" />
               <TextReveal text="Java Fullstack " className="block" />
-              <TextReveal text="Developer with AI " delay={0.4} className="block mt-1" />
-              <TextReveal text="Integration" delay={0.4} className="block mt-1" />
+              <TextReveal text="Developer" delay={0.4} className="block mt-1" />
+              
             </motion.h1>
 
             <div className="space-y-4 max-w-xl">
