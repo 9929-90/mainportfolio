@@ -115,7 +115,7 @@ const projects = [
   {
   "id": 6,
   "number": "06",
-  "status": "completed",
+  "status": "live",
   "title": "Pinora",
   "subtitle": "Secure Credentials Vault App",
   "summary": "Secure credential manager with JWT authentication and vault-based password protection built for safe and fast access to stored secrets",
