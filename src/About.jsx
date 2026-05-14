@@ -3,14 +3,14 @@ import { useRef, useEffect, Suspense, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, OrbitControls, Environment, Stars, Float, Preload } from '@react-three/drei';
 import * as THREE from 'three';
+import { Helmet } from "react-helmet-async";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
-};
-const childVariants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 120, damping: 22 } },
+const fadeUp = {
+  hidden: { opacity: 0, y: 14 },
+  visible: (d = 0) => ({
+    opacity: 1, y: 0,
+    transition: { type: 'spring', stiffness: 120, damping: 22, delay: d },
+  }),
 };
 
 const JavaModel = () => {
@@ -21,7 +21,10 @@ const JavaModel = () => {
       if (child instanceof THREE.Mesh) {
         child.castShadow = true;
         child.receiveShadow = true;
-        if (child.material) { child.material.envMapIntensity = 1; child.material.needsUpdate = true; }
+        if (child.material) {
+          child.material.envMapIntensity = 1;
+          child.material.needsUpdate = true;
+        }
       }
     });
   }, [scene]);
@@ -31,228 +34,334 @@ const JavaModel = () => {
   return <primitive ref={modelRef} object={scene} scale={0.4} position={[0, -0.2, 0]} />;
 };
 
-const Stat = ({ n, label }) => (
-  <div style={{ textAlign: 'center' }}>
-    <div style={{ fontSize: 'clamp(18px, 2.2vw, 24px)', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.02em', fontFamily: "'Open Sans',sans-serif" }}>{n}</div>
-    <div style={{ fontSize: 'clamp(9px, 1vw, 11px)', fontWeight: 600, color: '#888', letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: "'Open Sans',sans-serif", marginTop: '3px' }}>{label}</div>
-  </div>
-);
-
 const Tag = ({ children }) => (
   <span style={{
-    display: 'inline-block', padding: '4px 11px',
+    display: 'inline-block', padding: '4px 10px',
     border: '1px solid rgba(255,255,255,0.22)', borderRadius: '2px',
-    fontSize: 'clamp(10px, 1.1vw, 12px)', fontWeight: 600, letterSpacing: '0.08em',
-    textTransform: 'uppercase', color: '#ddd', fontFamily: "'Open Sans',sans-serif",
+    fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em',
+    textTransform: 'uppercase', color: '#ddd',
+    fontFamily: "'Open Sans',sans-serif",
   }}>{children}</span>
 );
 
-const TabBtn = ({ label, active, onClick }) => (
-  <button onClick={onClick} style={{
-    background: 'none', border: 'none', cursor: 'pointer',
-    padding: '6px 0', fontSize: 'clamp(10px, 1.1vw, 12px)', fontWeight: 700,
-    letterSpacing: '0.15em', textTransform: 'uppercase',
-    color: active ? '#ffffff' : '#666',
-    fontFamily: "'Open Sans',sans-serif",
-    borderBottom: active ? '1px solid #ff3333' : '1px solid transparent',
-    transition: 'color 0.2s, border-color 0.2s',
-  }}>{label}</button>
+const StatItem = ({ n, label }) => (
+  <div style={{ textAlign: 'center' }}>
+    <div style={{ fontSize: '20px', fontWeight: 700, color: '#fff', fontFamily: "'Open Sans',sans-serif", lineHeight: 1 }}>{n}</div>
+    <div style={{ fontSize: '9px', fontWeight: 600, color: '#666', letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: "'Open Sans',sans-serif", marginTop: '4px' }}>{label}</div>
+  </div>
 );
 
-const panels = {
-  story: (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      <p style={{ margin: 0, fontSize: 'clamp(12px, 1.3vw, 14px)', fontWeight: 400, color: '#dddddd', lineHeight: 1.85, fontFamily: "'Open Sans',sans-serif" }}>
-        Born &amp; raised in <span style={{ color: '#ffffff', fontWeight: 700 }}>Udaipur, Rajasthan</span>. Schooled at The Stanvard Sr. Sec. School
-        (Science &amp; Maths, 71% in 12th). Graduated with a <span style={{ color: '#ffffff', fontWeight: 700 }}>B.Sc. CS from MLSU</span> in 2025.
-      </p>
-      <p style={{ margin: 0, fontSize: 'clamp(12px, 1.3vw, 14px)', fontWeight: 400, color: '#dddddd', lineHeight: 1.85, fontFamily: "'Open Sans',sans-serif" }}>
-        Started Full-Stack Dev in <span style={{ color: '#ffffff', fontWeight: 700 }}>2024</span> with Java — built production apps, maintained client sites via GitHub pipelines, configured DNS &amp; domains. Beyond code: <span style={{ color: '#ffffff', fontWeight: 700 }}>guitar, singing</span>, and{' '}
-        <span style={{ color: '#ff3333', fontStyle: 'italic', fontWeight: 700 }}>integrity above all.</span>
-      </p>
-    </div>
-  ),
-  edu: (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-      <div style={{ borderLeft: '2px solid #ff3333', paddingLeft: '14px' }}>
-        <div style={{ fontSize: 'clamp(13px, 1.4vw, 15px)', fontWeight: 700, color: '#ffffff', fontFamily: "'Open Sans',sans-serif" }}>Mohanlal Sukhadia University</div>
-        <div style={{ fontSize: 'clamp(11px, 1.2vw, 13px)', fontWeight: 400, color: '#bbbbbb', fontFamily: "'Open Sans',sans-serif", marginTop: '4px' }}>B.Sc. Computer Science</div>
-        <div style={{ fontSize: 'clamp(9px, 1vw, 11px)', color: '#ff3333', letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: "'Open Sans',sans-serif", marginTop: '5px', fontWeight: 600 }}>2022 – 2025 · 60%</div>
-      </div>
-      <div style={{ borderLeft: '2px solid rgba(255,255,255,0.18)', paddingLeft: '14px' }}>
-        <div style={{ fontSize: 'clamp(13px, 1.4vw, 15px)', fontWeight: 700, color: '#ffffff', fontFamily: "'Open Sans',sans-serif" }}>The Stanvard Sr. Sec. School</div>
-        <div style={{ fontSize: 'clamp(11px, 1.2vw, 13px)', fontWeight: 400, color: '#bbbbbb', fontFamily: "'Open Sans',sans-serif", marginTop: '4px' }}>Science &amp; Mathematics</div>
-        <div style={{ fontSize: 'clamp(9px, 1vw, 11px)', color: '#888', letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: "'Open Sans',sans-serif", marginTop: '5px', fontWeight: 600 }}>12th · 71%</div>
-      </div>
-    </div>
-  ),
-};
-
-const card = {
+const glass = {
   background: 'rgba(0,0,0,0.72)',
   backdropFilter: 'blur(20px)',
   WebkitBackdropFilter: 'blur(20px)',
-  border: '1px solid rgba(255,255,255,0.12)',
+  border: '1px solid rgba(255,255,255,0.11)',
   borderRadius: '3px',
-  pointerEvents: 'auto',
 };
 
 const About = () => {
   const ref = useRef();
-  const isInView = useInView(ref, { once: true, amount: 0.1 });
+  const isInView = useInView(ref, { once: true, amount: 0.05 });
   const [activeTab, setActiveTab] = useState('story');
 
   return (
     <section ref={ref} style={{
-      position: 'relative', width: '100vw', minHeight: '100vh',
-      backgroundColor: '#000', color: '#fff', overflow: 'hidden',
+      position: 'relative', width: '100vw',
+      backgroundColor: '#000', color: '#fff',
       fontFamily: "'Open Sans', sans-serif",
     }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap');
         *, *::before, *::after { box-sizing: border-box; }
         body { background: #000; margin: 0; padding: 0; }
-        ::selection { background: rgba(255,255,255,0.18); }
 
-        /* Mobile: stack layout */
+        /* ── DESKTOP ── */
+        .about-section-inner { height: 100vh; overflow: hidden; position: relative; }
+        .about-canvas-wrap { position: absolute; inset: 0; z-index: 0; }
+
+        .corner-tl { position: absolute; top: clamp(20px,3vw,38px); left: clamp(20px,3vw,38px); max-width: 240px; z-index: 10; }
+        .corner-tr { position: absolute; top: clamp(20px,3vw,38px); right: clamp(20px,3vw,38px); max-width: 230px; z-index: 10; text-align: right; }
+        .corner-bl { position: absolute; bottom: clamp(20px,3vw,38px); left: clamp(20px,3vw,38px); max-width: 290px; z-index: 10; }
+        .corner-br { position: absolute; bottom: clamp(20px,3vw,38px); right: clamp(20px,3vw,38px); max-width: 250px; z-index: 10; }
+
+        .mobile-stack { display: none; }
+
+        /* ── MOBILE ── */
         @media (max-width: 767px) {
-          .about-layout {
-            position: relative !important;
-            width: 100% !important;
-            min-height: 100vh !important;
+          .about-section-inner { height: auto !important; min-height: 0 !important; overflow: visible !important; }
+          .about-canvas-wrap { display: none !important; }
+          .corner-tl, .corner-tr, .corner-bl, .corner-br { display: none !important; }
+          .mobile-stack {
             display: flex !important;
-            flex-direction: column !important;
-            justify-content: flex-start !important;
-            padding: 24px 16px 32px !important;
-            gap: 10px !important;
+            flex-direction: column;
+            position: relative;
+            z-index: 10;
+            padding: 20px 16px 36px;
           }
-          .about-canvas {
-            position: fixed !important;
-            top: 0 !important; left: 0 !important;
-            width: 100% !important; height: 100% !important;
-            opacity: 0.35 !important;
-          }
-        }
-
-        /* Tablet */
-        @media (min-width: 768px) and (max-width: 1023px) {
-          .about-layout {
-            width: clamp(340px, 55vw, 520px) !important;
-            padding: clamp(24px, 3.5vw, 40px) !important;
-          }
+          .mob-sep { height: 1px; background: rgba(255,255,255,0.08); margin: 0; }
         }
       `}</style>
 
-      {/* ── 3D Background ── */}
-      <div className="about-canvas" style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-        <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 0, 5], fov: 45 }}
-          gl={{ antialias: true, powerPreference: 'high-performance', alpha: false }}>
-          <Suspense fallback={null}>
-            <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1.5} />
-            <ambientLight intensity={0.9} />
-            <pointLight position={[10, 10, 10]} intensity={1} />
-            <Float speed={3} rotationIntensity={0.5} floatIntensity={0.5}>
-              <group position={[typeof window !== 'undefined' && window.innerWidth > 1024 ? 1.5 : 0, 0, 0]}>
+      <Helmet>
+        <title>About | Rohit Suthar</title>
+        <meta name="description" content="Learn more about Rohit Suthar – a full-stack developer from Udaipur." />
+      </Helmet>
+
+      <div className="about-section-inner">
+
+        {/* 3D Canvas */}
+        <div className="about-canvas-wrap">
+          <Canvas shadows dpr={[1, 2]} camera={{ position: [0, 0, 5], fov: 45 }}
+            gl={{ antialias: true, powerPreference: 'high-performance', alpha: true }}
+            style={{ background: 'transparent' }}>
+            <Suspense fallback={null}>
+              <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1.5} />
+              <ambientLight intensity={2.5} />
+              <directionalLight position={[5, 5, 5]} intensity={3} />
+              <directionalLight position={[-5, -5, -5]} intensity={1.5} />
+              <pointLight position={[0, 5, 3]} intensity={4} color="#ffffff" />
+              <Float speed={3} rotationIntensity={0.5} floatIntensity={0.5}>
                 <JavaModel />
-              </group>
-            </Float>
-            <OrbitControls enableZoom={false} enablePan={false} />
-            <Environment preset="studio" />
-            <Preload all />
-          </Suspense>
-        </Canvas>
-      </div>
+              </Float>
+              <OrbitControls enableZoom={false} enablePan={false} />
+              <Environment preset="dawn" />
+              <Preload all />
+            </Suspense>
+          </Canvas>
+        </div>
 
-      {/* ── Left card column ── */}
-      <motion.div
-        className="about-layout"
-        style={{
-          position: 'absolute', top: 0, left: 0, bottom: 0, zIndex: 10,
-          display: 'flex', flexDirection: 'column', justifyContent: 'center',
-          padding: 'clamp(20px, 4vw, 52px)',
-          gap: '10px',
-          width: 'clamp(300px, 40vw, 460px)',
-          pointerEvents: 'none',
-        }}
-        variants={containerVariants}
-        initial="hidden"
-        animate={isInView ? 'visible' : 'hidden'}
-      >
+        {/* ── DESKTOP CORNERS ── */}
 
-        {/* Back */}
-        <motion.div variants={childVariants} style={{ pointerEvents: 'auto', marginBottom: '2px' }}>
+        {/* TOP-LEFT: Back + Name */}
+        <motion.div className="corner-tl"
+          custom={0} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
           <a href="/" style={{
-            display: 'inline-flex', alignItems: 'center', gap: '7px',
-            color: '#888', textDecoration: 'none', fontSize: 'clamp(10px, 1.1vw, 12px)',
+            display: 'inline-flex', alignItems: 'center', gap: '6px',
+            color: '#555', textDecoration: 'none', fontSize: '11px',
             letterSpacing: '0.18em', textTransform: 'uppercase',
-            fontFamily: "'Open Sans',sans-serif", fontWeight: 600, transition: 'color 0.2s',
+            fontFamily: "'Open Sans',sans-serif", fontWeight: 600,
+            transition: 'color 0.2s', marginBottom: '10px',
           }}
             onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-            onMouseLeave={e => e.currentTarget.style.color = '#888'}
+            onMouseLeave={e => e.currentTarget.style.color = '#555'}
           >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+              <path d="M8 2L4 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Back
+          </a>
+          <div style={{ ...glass, padding: '14px 18px' }}>
+            <div style={{ fontSize: '10px', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#ff3333', marginBottom: '6px', fontWeight: 700, fontFamily: "'Open Sans',sans-serif" }}>About</div>
+            <div style={{ fontSize: 'clamp(24px, 2.6vw, 32px)', fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.1, fontFamily: "'Open Sans',sans-serif" }}>
+              Rohit <span style={{ color: '#ff3333' }}>Suthar</span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* TOP-RIGHT: Stack + location */}
+        <motion.div className="corner-tr"
+          custom={0.1} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+          <div style={{ ...glass, padding: '14px 16px', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '9px' }}>
+            <div style={{ fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#555', fontFamily: "'Open Sans',sans-serif", fontWeight: 600 }}>Stack</div>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+              {['Java', 'ReactJs', 'Web/App', 'SQL', 'Git/GitHub'].map(t => <Tag key={t}>{t}</Tag>)}
+            </div>
+            <div style={{ fontSize: '12px', color: '#999', fontFamily: "'Open Sans',sans-serif", lineHeight: 1.7 }}>
+              Udaipur, Rajasthan<br />
+              <span style={{ color: '#ff3333', fontWeight: 700 }}>Full-Stack Dev</span>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* BOTTOM-LEFT: Tabs */}
+        <motion.div className="corner-bl"
+          custom={0.2} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+          <div style={{ ...glass, padding: '14px 16px' }}>
+            <div style={{ display: 'flex', gap: '20px', marginBottom: '12px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '8px' }}>
+              {[['story', 'Story'], ['edu', 'Education']].map(([id, label]) => (
+                <button key={id} onClick={() => setActiveTab(id)} style={{
+                  background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 4px',
+                  fontSize: '11px', fontWeight: 700, letterSpacing: '0.14em',
+                  textTransform: 'uppercase', fontFamily: "'Open Sans',sans-serif",
+                  color: activeTab === id ? '#fff' : '#555',
+                  borderBottom: activeTab === id ? '1px solid #ff3333' : '1px solid transparent',
+                  transition: 'color 0.2s',
+                }}>{label}</button>
+              ))}
+            </div>
+            <AnimatePresence mode="wait">
+              {activeTab === 'story' ? (
+                <motion.p key="story" style={{ margin: 0, fontSize: '12px', color: '#ccc', lineHeight: 1.85, fontFamily: "'Open Sans',sans-serif" }}
+                  initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15 }}>
+                  B.Sc. CS from <strong style={{ color: '#fff' }}>MLSU 2025</strong>. Full-Stack dev since <strong style={{ color: '#fff' }}>2024</strong>, starting with Java — built production apps, managed DNS &amp; pipelines. Beyond code: <strong style={{ color: '#fff' }}>guitar, singing</strong>, and <em style={{ color: '#ff3333', fontWeight: 700 }}>integrity above all.</em>
+                </motion.p>
+              ) : (
+                <motion.div key="edu"
+                  initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15 }}
+                  style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ borderLeft: '2px solid #ff3333', paddingLeft: '10px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#fff', fontFamily: "'Open Sans',sans-serif" }}>Mohanlal Sukhadia Univ.</div>
+                    <div style={{ fontSize: '11px', color: '#aaa', fontFamily: "'Open Sans',sans-serif", marginTop: '2px' }}>B.Sc. Computer Science · 60%</div>
+                    <div style={{ fontSize: '10px', color: '#ff3333', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: "'Open Sans',sans-serif", marginTop: '3px', fontWeight: 600 }}>2022 – 2025</div>
+                  </div>
+                  <div style={{ borderLeft: '2px solid rgba(255,255,255,0.15)', paddingLeft: '10px' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#fff', fontFamily: "'Open Sans',sans-serif" }}>The Stanvard Sr. Sec.</div>
+                    <div style={{ fontSize: '11px', color: '#aaa', fontFamily: "'Open Sans',sans-serif", marginTop: '2px' }}>Science &amp; Mathematics · 71%</div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
+
+        {/* BOTTOM-RIGHT: Stats + CTAs */}
+        <motion.div className="corner-br"
+          custom={0.3} variants={fadeUp} initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+          <div style={{ ...glass, padding: '12px 16px', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '8px', marginBottom: '8px' }}>
+            <StatItem n="1+" label="Yrs" />
+            <StatItem n="5+" label="Proj" />
+            <StatItem n="2025" label="Grad" />
+            <StatItem n="Java" label="Origin" />
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <a href="/projects" style={{
+              flex: 1, textAlign: 'center', padding: '11px 0',
+              background: '#fff', color: '#000', borderRadius: '2px',
+              fontSize: '11px', fontWeight: 700, letterSpacing: '0.14em',
+              textTransform: 'uppercase', textDecoration: 'none',
+              fontFamily: "'Open Sans',sans-serif", transition: 'background 0.2s',
+            }}
+              onMouseEnter={e => e.currentTarget.style.background = '#e0e0e0'}
+              onMouseLeave={e => e.currentTarget.style.background = '#fff'}
+            >Projects</a>
+            <a href="/skills" style={{
+              flex: 1, textAlign: 'center', padding: '11px 0',
+              border: '1px solid rgba(255,255,255,0.2)', color: '#ccc', borderRadius: '2px',
+              fontSize: '11px', fontWeight: 700, letterSpacing: '0.14em',
+              textTransform: 'uppercase', textDecoration: 'none',
+              fontFamily: "'Open Sans',sans-serif", transition: 'border-color 0.2s, color 0.2s',
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#fff'; e.currentTarget.style.color = '#fff'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.color = '#ccc'; }}
+            >Skills</a>
+          </div>
+        </motion.div>
+
+      </div>{/* end .about-section-inner */}
+
+      {/* ════════════════════════════
+          MOBILE — single column
+          (hidden on desktop via CSS)
+      ════════════════════════════ */}
+      <motion.div className="mobile-stack"
+        variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.1 } } }}
+        initial="hidden" animate={isInView ? 'visible' : 'hidden'}>
+
+        {/* Back */}
+        <motion.div variants={fadeUp} style={{ marginBottom: '14px' }}>
+          <a href="/" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '6px',
+            color: '#555', textDecoration: 'none', fontSize: '11px',
+            letterSpacing: '0.18em', textTransform: 'uppercase',
+            fontFamily: "'Open Sans',sans-serif", fontWeight: 600,
+          }}>
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
               <path d="M8 2L4 6L8 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             Back
           </a>
         </motion.div>
 
-        {/* Name card */}
-        <motion.div variants={childVariants} style={{ ...card, padding: 'clamp(14px, 1.8vw, 20px) clamp(16px, 2vw, 22px)' }}>
-          <div style={{ fontSize: 'clamp(9px, 1vw, 11px)', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#ff3333', fontFamily: "'Open Sans',sans-serif", marginBottom: '7px', fontWeight: 700 }}>About</div>
-          <div style={{ fontSize: 'clamp(26px, 3.2vw, 36px)', fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.1, fontFamily: "'Open Sans',sans-serif" }}>
+        {/* Name */}
+        <motion.div variants={fadeUp} style={{ paddingBottom: '18px' }}>
+          <div style={{ fontSize: '10px', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#ff3333', marginBottom: '5px', fontWeight: 700, fontFamily: "'Open Sans',sans-serif" }}>About</div>
+          <div style={{ fontSize: '34px', fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.1, fontFamily: "'Open Sans',sans-serif" }}>
             Rohit <span style={{ color: '#ff3333' }}>Suthar</span>
           </div>
         </motion.div>
+        <hr className="mob-sep" />
 
-        {/* Stats card */}
-        <motion.div variants={childVariants} style={{ ...card, padding: 'clamp(12px, 1.5vw, 16px) clamp(14px, 1.8vw, 20px)', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '10px' }}>
-          <Stat n="1+" label="Yrs" />
-          <Stat n="5+" label="Projects" />
-          <Stat n="2025" label="Grad" />
-          <Stat n="Java" label="Origin" />
+        {/* Stack */}
+        <motion.div variants={fadeUp} style={{ padding: '18px 0' }}>
+          <div style={{ fontSize: '10px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#555', fontFamily: "'Open Sans',sans-serif", fontWeight: 600, marginBottom: '10px' }}>Stack</div>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {['Java', 'ReactJs', 'Web/App', 'SQL', 'Git/GitHub'].map(t => <Tag key={t}>{t}</Tag>)}
+          </div>
+          <div style={{ fontSize: '13px', color: '#888', fontFamily: "'Open Sans',sans-serif", lineHeight: 1.7, marginTop: '10px' }}>
+            Udaipur, Rajasthan &nbsp;·&nbsp; <span style={{ color: '#ff3333', fontWeight: 700 }}>Full-Stack Dev</span>
+          </div>
         </motion.div>
+        <hr className="mob-sep" />
 
-        {/* Tabbed card — Story & Education only */}
-        <motion.div variants={childVariants} style={{ ...card, padding: 'clamp(14px, 1.8vw, 20px) clamp(16px, 2vw, 22px)' }}>
-          <div style={{ display: 'flex', gap: '22px', marginBottom: '14px', borderBottom: '1px solid rgba(255,255,255,0.09)', paddingBottom: '10px' }}>
-            <TabBtn label="Story"     active={activeTab === 'story'} onClick={() => setActiveTab('story')} />
-            <TabBtn label="Education" active={activeTab === 'edu'}   onClick={() => setActiveTab('edu')}   />
+        {/* Story / Education tabs */}
+        <motion.div variants={fadeUp} style={{ padding: '18px 0' }}>
+          <div style={{ display: 'flex', gap: '24px', marginBottom: '14px' }}>
+            {[['story', 'Story'], ['edu', 'Education']].map(([id, label]) => (
+              <button key={id} onClick={() => setActiveTab(id)} style={{
+                background: 'none', border: 'none', cursor: 'pointer', padding: '0 0 4px',
+                fontSize: '12px', fontWeight: 700, letterSpacing: '0.14em',
+                textTransform: 'uppercase', fontFamily: "'Open Sans',sans-serif",
+                color: activeTab === id ? '#fff' : '#555',
+                borderBottom: activeTab === id ? '1px solid #ff3333' : '1px solid transparent',
+                transition: 'color 0.2s',
+              }}>{label}</button>
+            ))}
           </div>
           <AnimatePresence mode="wait">
-            <motion.div key={activeTab}
-              initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.18 }}>
-              {panels[activeTab]}
-            </motion.div>
+            {activeTab === 'story' ? (
+              <motion.p key="story-m" style={{ margin: 0, fontSize: '13px', color: '#ccc', lineHeight: 1.85, fontFamily: "'Open Sans',sans-serif" }}
+                initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15 }}>
+                AI-integrated <strong style={{ color: '#fff' }}>Java Full-Stack Developer</strong> building scalable web apps, SaaS products, and AI-powered solutions. Skilled in <strong style={{ color: '#fff' }}>Java, Spring Boot, React, Next.js</strong>, APIs, databases, and cloud deployments. From development to production deployment —{' '}
+                <em style={{ color: '#ff3333', fontWeight: 700 }}>building complete digital products end-to-end.</em>
+              </motion.p>
+            ) : (
+              <motion.div key="edu-m"
+                initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} transition={{ duration: 0.15 }}
+                style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ borderLeft: '2px solid #ff3333', paddingLeft: '12px' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#fff', fontFamily: "'Open Sans',sans-serif" }}>Mohanlal Sukhadia Univ.</div>
+                  <div style={{ fontSize: '12px', color: '#aaa', fontFamily: "'Open Sans',sans-serif", marginTop: '3px' }}>B.Sc. Computer Science · 60%</div>
+                  <div style={{ fontSize: '10px', color: '#ff3333', letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: "'Open Sans',sans-serif", marginTop: '4px', fontWeight: 600 }}>2022 – 2025</div>
+                </div>
+                <div style={{ borderLeft: '2px solid rgba(255,255,255,0.15)', paddingLeft: '12px' }}>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: '#fff', fontFamily: "'Open Sans',sans-serif" }}>The Stanvard Sr. Sec.</div>
+                  <div style={{ fontSize: '12px', color: '#aaa', fontFamily: "'Open Sans',sans-serif", marginTop: '3px' }}>Science &amp; Mathematics · 71%</div>
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
         </motion.div>
+        <hr className="mob-sep" />
 
-        {/* CTA row */}
-        <motion.div variants={childVariants} style={{ display: 'flex', gap: '8px', pointerEvents: 'auto' }}>
+        {/* Stats */}
+        <motion.div variants={fadeUp} style={{ padding: '18px 0', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '8px' }}>
+          <StatItem n="1+" label="Yrs" />
+          <StatItem n="5+" label="Proj" />
+          <StatItem n="2025" label="Grad" />
+          <StatItem n="Java" label="Origin" />
+        </motion.div>
+        <hr className="mob-sep" />
+
+        {/* CTAs */}
+        <motion.div variants={fadeUp} style={{ paddingTop: '18px', display: 'flex', gap: '8px' }}>
           <a href="/projects" style={{
-            flex: 1, textAlign: 'center', padding: 'clamp(10px, 1.2vw, 13px) 0',
+            flex: 1, textAlign: 'center', padding: '14px 0',
             background: '#fff', color: '#000', borderRadius: '2px',
-            fontSize: 'clamp(10px, 1.1vw, 12px)', fontWeight: 700, letterSpacing: '0.15em',
+            fontSize: '12px', fontWeight: 700, letterSpacing: '0.14em',
             textTransform: 'uppercase', textDecoration: 'none',
-            fontFamily: "'Open Sans',sans-serif", transition: 'background 0.2s',
-          }}
-            onMouseEnter={e => e.currentTarget.style.background = '#e0e0e0'}
-            onMouseLeave={e => e.currentTarget.style.background = '#fff'}
-          >View Projects</a>
+            fontFamily: "'Open Sans',sans-serif",
+          }}>Projects</a>
           <a href="/skills" style={{
-            flex: 1, textAlign: 'center', padding: 'clamp(10px, 1.2vw, 13px) 0',
-            border: '1px solid rgba(255,255,255,0.22)', color: '#cccccc', borderRadius: '2px',
-            fontSize: 'clamp(10px, 1.1vw, 12px)', fontWeight: 700, letterSpacing: '0.15em',
+            flex: 1, textAlign: 'center', padding: '14px 0',
+            border: '1px solid rgba(255,255,255,0.2)', color: '#ccc', borderRadius: '2px',
+            fontSize: '12px', fontWeight: 700, letterSpacing: '0.14em',
             textTransform: 'uppercase', textDecoration: 'none',
-            fontFamily: "'Open Sans',sans-serif", transition: 'border-color 0.2s, color 0.2s',
-          }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = '#fff'; e.currentTarget.style.color = '#fff'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.22)'; e.currentTarget.style.color = '#cccccc'; }}
-          >My Skills</a>
+            fontFamily: "'Open Sans',sans-serif",
+          }}>Skills</a>
         </motion.div>
 
       </motion.div>
+
     </section>
   );
 };
